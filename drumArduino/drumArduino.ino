@@ -8,7 +8,39 @@ const int speakerPin = 9;
 int snareSensor = A0; // indicates where the pin is connected
 int snareRingSensor = A1;
 
-// soundfile names, the lower the number, the lighter the sound
+// Sensor values
+int snareValue = 0;
+int snareRingValue = 0;
+
+// Threshold Reference Values
+int ref1 = 10;
+int ref2 = 100;
+int ref3 = 200;
+int ref4 = 400;
+int ref5 = 600;
+int ref6 = 800;
+
+// Test values for when hits won't surpass 500
+/*
+int ref1 = 10;
+int ref2 = 80;
+int ref3 = 160;
+int ref4 = 240;
+int ref5 = 320;
+int ref6 = 400;
+*/
+
+// Test values for when hits won't surpass 250
+/*
+int ref1 = 10;
+int ref2 = 50;
+int ref3 = 85;
+int ref4 = 120;
+int ref5 = 155;
+int ref6 = 190;
+*/
+
+// Soundfile names, the lower the number, the lighter the sound
 char* snareSound1 = "snare1.wav"; 
 char* snareSound2 = "snare2.wav";
 char* snareSound3 = "snare3.wav";
@@ -30,55 +62,71 @@ TMRpcm tmrpcm;
 void setup() {
 	Serial.begin(9600);
 	pinMode(snareSensor, INPUT);
+  pinMode(snareRingSensor, INPUT);
 	
-	//Init sd shield
+	//Initialize SD Shield
 	if (!SD.begin(SD_ChipSelectPin)) {
 		Serial.println("SD fail");
 		return;
 	}
 	
-	//Init speaker
+	//Initialize Speaker
 	tmrpcm.speakerPin = speakerPin;
 	tmrpcm.setVolume(3);
 }
 
 void loop() {
-	int snareValue = analorRead(snareSensor); // saves value read on the sensor
-  int snareRingValue = analorRead(snareRingSensor);
+	
+  // Saves value read from each sensor
+  snareValue = analogRead(snareSensor); 
+  snareRingValue = analogRead(snareRingSensor);
 
 	/* 
-  The piezo sensor reads values from 0 to 127, 
+  The piezo sensor reads values from 0 to 1023, 
   starting at 10 so sounds aren't played without a hit.
   */
-	if(snareValue > 10 && snareValue <= 27) {
-		tmrpcm.play(snareSound1); // pp
-	} else if (snareValue > 27 && snareValue <= 44){
-		tmrpcm.play(snareSound2); // p
-	} else if (snareValue > 44 && snareValue <= 61){
-		tmrpcm.play(snareSound3); // normal1
-	} else if (snareValue > 61 && snareValue <= 78){
-		tmrpcm.play(snareSound4); // normal2
-	} else if (snareValue > 78 && snareValue <= 95){
-		tmrpcm.play(snareSound5); // f
-	} else if (snareValue > 95 && snareValue <= 112){
-		tmrpcm.play(snareSound6); //ff
-	} else if (snareValue > 112 && snareValue <= 127 && snareRingValue > 60){
-		tmrpcm.play(snareSound7); // sfx
-	} 
+	if(snareValue > ref1 && snareValue <= ref2) { // pp
+		tmrpcm.play(snareSound1); 
+    Serial.println(snareValue);
+	} else if (snareValue > ref2 && snareValue <= ref3){ // p
+		tmrpcm.play(snareSound2); 
+    Serial.println(snareValue);
+	} else if (snareValue > ref3 && snareValue <= ref4){ // mp
+		tmrpcm.play(snareSound3); 
+    Serial.println(snareValue);
+	} else if (snareValue > ref4 && snareValue <= ref5){ // mf
+		tmrpcm.play(snareSound4); 
+    Serial.println(snareValue);
+	} else if (snareValue > ref5 && snareValue <= ref6){ // f
+		tmrpcm.play(snareSound5); 
+    Serial.println(snareValue);
+	} else if (snareValue > ref6){ //ff
+		tmrpcm.play(snareSound6); 
+    Serial.println(snareValue);
+	} else if (snareValue > ref6 && snareRingValue > ref3){ // sfx
+		tmrpcm.play(snareSound7); 	
+    Serial.println(snareValue);
+  } 
   
-  // sounds for when the ring alone is hit
-  if (snareRingValue > 10 && snareRingValue <= 30){
+  // Sounds for when the rim alone is hit
+  if (snareRingValue > ref1 && snareRingValue <= ref2){
 		tmrpcm.play(snareRingSound1); 
-	} else if (snareRingValue > 30 && snareRingValue <= 50){
+    Serial.println(snareRingValue);
+	} else if (snareRingValue > ref2 && snareRingValue <= ref3){
 		tmrpcm.play(snareRingSound2); 
-	} else if (snareRingValue > 50 && snareRingValue <= 70){
+    Serial.println(snareRingValue);
+	} else if (snareRingValue > ref3 && snareRingValue <= ref4){
 		tmrpcm.play(snareRingSound3); 
-	} else if (snareRingValue > 70 && snareRingValue <= 90){
+    Serial.println(snareRingValue);
+	} else if (snareRingValue > ref4 && snareRingValue <= ref5){
 		tmrpcm.play(snareRingSound4); 
-	} else if (snareRingValue > 90 && snareRingValue <= 110){
+    Serial.println(snareRingValue);
+	} else if (snareRingValue > ref5 && snareRingValue <= ref6){
 		tmrpcm.play(snareRingSound5); 
-	} else if (snareRingValue > 110 && snareRingValue <= 127){
+    Serial.println(snareRingValue);
+	} else if (snareRingValue > ref6){
 		tmrpcm.play(snareRingSound6); 
+    Serial.println(snareRingValue);
 	}
 	
 }
